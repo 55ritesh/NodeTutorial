@@ -1,16 +1,52 @@
-// var fs = require("fs");
-// var  os = require("os");
+const express = require("express");
+const app =express();
+const db= require('./db');
 
+const bodyParser = require('body-parser');
+app.use(bodyParser.json());
 
-// var user = os.userInfo();
-// console.log(user); 
+const Person = require('./models/person');
 
-// fs.appendFile('greeting.txt','Hi '+user.username+'!\n',()=>{
-//     console.log('file is created');
-// })
+app.get('/',function(req,res){
+    res.send("Welocome to hotel ... How i can help you?");
+})
 
-const notes = require('./notes.js');
-console.log("main server");
+// Post route to add a person
+app.post('/person',async (req,res)=>{
+   try{
+    const data = req.body 
 
-console.log(notes.x);
-console.log(notes.addNumber(1,2));
+    // create new preson document using the Mongoose model
+    const newPerson = new Person(data);
+
+    // save the new person to database
+   const response = await newPerson.save();
+   console.log('data saved');
+   res.status(200).json(response);
+   }
+   catch(error){
+      console.log(error);
+      res.status(500).json({error:'Internal Server Error'});
+   }
+})
+
+// get method to get the person
+
+app.get('/person',async(req,res)=>{
+    try{
+        
+        const data = await Person.find();
+        console.log('data fetched');
+        res.status(200).json(data);
+
+    }catch{
+          
+      console.log(error);
+      res.status(500).json({error:'Internal Server Error'});
+
+    }
+})
+
+app.listen(3000,()=>{
+    console.log("listening on port 3000");
+})

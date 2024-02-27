@@ -6,8 +6,16 @@ const bodyParser = require('body-parser');
 app.use(bodyParser.json());
 
 
+// MiddleWare function
+const logRequest = (req,res,next)=>{
+    console.log(`[${new Date().toLocaleString}] Request Made to : ${req.originalUrl}`);
 
-app.get('/',function(req,res){
+    next(); // Move on to the next phase
+}
+
+
+
+app.get('/',logRequest,function(req,res){
     res.send("Welocome to hotel ... How i can help you?");
 })
 

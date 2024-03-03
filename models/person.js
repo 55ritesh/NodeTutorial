@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const bcrypt =require('bcrypt');
 
 const personSchema = new mongoose.Schema({
     name:{
@@ -38,6 +39,45 @@ const personSchema = new mongoose.Schema({
         required:true
     }
 })
+
+personSchema.pre('save',async function(next){
+    const person = this;
+
+    if(!person.isModified('password'))
+    return next();
+
+    try{
+        // hash password generation
+        const salt  = await bcrypt.genSalt(10);
+
+        // hash password
+        const hashedPassword = await bcrypt.hashedPassword(person.password,salt);
+
+        // override the plain password with hashed one
+        person.password = hashedPassword;
+
+        next();
+    }catch(err){
+        return next(err);
+    }
+})
+
+personSchema.methods.comparePassword = async function(candidatePassword){
+    try{
+       // use bcrypt to compare the provided password with the hashed password
+
+       const isMatch = await bcrypt.compare(candidatePassword,this.password);
+    }catch(err){
+     throw err;
+    }
+}
+
+// prince ----> fjjjxxxxxxxx
+// login---> agrawal
+
+// fjjjxxxxxxxx ---> extract salt
+// salt+agrawal ---> hash ---> dbbkbkbckdkkc
+// compare new salt with old then login is done
 
 
 // create person model
